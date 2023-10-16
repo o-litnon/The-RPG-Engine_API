@@ -1,6 +1,8 @@
 # The-RPG-Engine
 Mirror of the ReadMe.md from [The RPG Engine](https://store.steampowered.com/app/1818180/The_RPG_Engine/) that I co-founded
 
+An API is also available. The webpage can be found [here](https://o-litnon.github.io/The-RPG-Engine_API/)
+
 [![Watch the video](https://cdn.akamai.steamstatic.com/steam/apps/1818180/header.jpg?t=1678558364)](https://www.youtube.com/watch?v=nQwn7k3Rb3s)
 
 

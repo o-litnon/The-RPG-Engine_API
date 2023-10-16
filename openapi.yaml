@@ -35,7 +35,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/RollResult"
 
-  /chat:
+  /Chat:
     post:
       summary: Post a message to the chat, including roll commands
       tags: ["Chat"]
@@ -55,7 +55,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/RollResult"
 
-  /fx:
+  /FX:
     get:
       summary: Get Available Effects
       tags: ["FX"]
@@ -85,7 +85,7 @@ paths:
         409:
           description: Conflict
 
-  /pickupables:
+  /Pickupables:
     get:
       summary: Retrieve all pickupables
       tags: [Pickupables]
@@ -96,7 +96,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PagedResponseOfProp"
-  /pickupables/{guid}:
+  /Pickupables/{guid}:
     get:
       summary: Retrieve a specific pickupable by its GUID
       tags: [Pickupables]
@@ -140,7 +140,7 @@ paths:
           description: Forbidden
         404:
           description: Not Found
-  /pickupables/{guid}/chat:
+  /Pickupables/{guid}/Chat:
     post:
       summary: Update Pickupable Chat
       tags: [Pickupables]
@@ -168,7 +168,7 @@ paths:
           description: Forbidden
         404:
           description: Not Found
-  /pickupables/{guid}/focus:
+  /Pickupables/{guid}/Focus:
     post:
       summary: Focus on the pickupable
       tags: [Pickupables]
@@ -188,7 +188,7 @@ paths:
           description: Forbidden
         404:
           description: Not Found
-  /pickupables/{guid}/focusAll:
+  /Pickupables/{guid}/FocusAll:
     post:
       summary: Focus everyone on the pickupable
       tags: [Pickupables]
@@ -208,7 +208,7 @@ paths:
           description: Forbidden
         404:
           description: Not Found
-  /pickupables/{guid}/animations:
+  /Pickupables/{guid}/Animations:
     get:
       summary: Get animations for a specific pickupable by GUID.
       tags: [Pickupables]
@@ -272,7 +272,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  /pickupables/{guid}/transform:
+  /Pickupables/{guid}/Transform:
     get:
       summary: Get Pickupable Transform
       tags: [Pickupables]
@@ -329,7 +329,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  /pickupables/{guid}/MoveToGlobalLocation:
+  /Pickupables/{guid}/MoveToGlobalLocation:
     post:
       summary: Move the pickupable to the target global location
       tags: [Pickupables]
@@ -482,7 +482,7 @@ paths:
           description: Not Found
         409:
           description: Conflict
-  /CurrentCampaign/CurrentMap/pickupables:
+  /CurrentCampaign/CurrentMap/Pickupables:
     get:
       summary: Retrieve pickupables on the current map
       tags: [CurrentCampaign/CurrentMap]
@@ -527,7 +527,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  /CurrentCampaign/CurrentMap/terrainData:
+  /CurrentCampaign/CurrentMap/TerrainData:
     get:
       summary: Retrieve terrain data on the current map
       tags: [CurrentCampaign/CurrentMap]
@@ -677,7 +677,7 @@ paths:
           description: Not Found
         409:
           description: Conflict
-  /CurrentCampaign/Maps/{mapName}/pickupables:
+  /CurrentCampaign/Maps/{mapName}/Pickupables:
     get:
       summary: Get pickupables for a specific map.
       tags: [CurrentCampaign/Maps]
@@ -735,7 +735,7 @@ paths:
           description: Forbidden
         404:
           description: Not Found
-  /CurrentCampaign/Maps/{mapName}/terrainData:
+  /CurrentCampaign/Maps/{mapName}/TerrainData:
     get:
       summary: Get terrain data for a specific map.
       tags: [CurrentCampaign/Maps]
