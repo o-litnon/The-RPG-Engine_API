@@ -1,0 +1,1429 @@
+﻿openapi: 3.0.0
+info:
+  title: The RPG Engine API
+  version: 1.0.0
+  description: Requires The RPG Engine to be running locally.
+servers:
+  - url: http://localhost:8001/TheRpgEngine/
+paths:
+  /Roll:
+    get:
+      summary: Get the documentation describing the full capabilities of running a dice command
+      tags: ["Dice"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/text:
+              schema:
+                type: string
+    post:
+      summary: Roll a dice and get the result (Doesn't show in chat)
+      tags: ["Dice"]
+      requestBody:
+        description: Dice roll request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RollRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RollResult"
+
+  /chat:
+    post:
+      summary: Post a message to the chat, including roll commands
+      tags: ["Chat"]
+      requestBody:
+        required: true
+        content:
+          application/text:
+            schema:
+              type: string
+              description: Chat message to send
+              example: "2d6+3"
+      responses:
+        "200":
+          description: Contains optional Roll Result if a Dice command was given
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RollResult"
+
+  /fx:
+    get:
+      summary: Get Available Effects
+      tags: ["FX"]
+      description: Get a list of available click effects.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOfString"
+    post:
+      summary: Create Click Effect
+      tags: ["FX"]
+      description: Create a new click effect.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFx"
+      responses:
+        202:
+          description: Accepted
+        400:
+          description: Bad Request
+        409:
+          description: Conflict
+
+  /pickupables:
+    get:
+      summary: Retrieve all pickupables
+      tags: [Pickupables]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOfProp"
+  /pickupables/{guid}:
+    get:
+      summary: Retrieve a specific pickupable by its GUID
+      tags: [Pickupables]
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            $ref: "#/components/schemas/Guid"
+          description: The GUID of the pickupable
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: Pickupable not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+    delete:
+      summary: Delete Pickupable
+      tags: [Pickupables]
+      description: Delete a pickupable item by its GUID.
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          description: The GUID of the pickupable to delete.
+          schema:
+            type: string
+            $ref: "#/components/schemas/Guid"
+      responses:
+        202:
+          description: Accepted
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+  /pickupables/{guid}/chat:
+    post:
+      summary: Update Pickupable Chat
+      tags: [Pickupables]
+      description: Update chat for a pickupable item.
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          description: The GUID of the pickupable.
+          schema:
+            type: string
+            $ref: "#/components/schemas/Guid"
+      requestBody:
+        required: true
+        content:
+          application/text:
+            schema:
+              type: string
+              description: Chat message to show
+              example: "Hello!"
+      responses:
+        202:
+          description: Accepted
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+  /pickupables/{guid}/focus:
+    post:
+      summary: Focus on the pickupable
+      tags: [Pickupables]
+      description: Focus on the pickupable.
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          description: The GUID of the pickupable.
+          schema:
+            type: string
+            $ref: "#/components/schemas/Guid"
+      responses:
+        202:
+          description: Accepted
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+  /pickupables/{guid}/focusAll:
+    post:
+      summary: Focus everyone on the pickupable
+      tags: [Pickupables]
+      description: Focus everyone on the pickupable.
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          description: The GUID of the pickupable.
+          schema:
+            type: string
+            $ref: "#/components/schemas/Guid"
+      responses:
+        202:
+          description: Accepted
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+  /pickupables/{guid}/animations:
+    get:
+      summary: Get animations for a specific pickupable by GUID.
+      tags: [Pickupables]
+      parameters:
+        - in: path
+          name: guid
+          required: true
+          schema:
+            type: string
+            $ref: "#/components/schemas/Guid"
+      responses:
+        "200":
+          description: Successful response with animations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PagedResponseOfAnimations"
+        403:
+          description: Forbidden
+        404:
+          description: Pickupable not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      summary: Update Pickupable Animations
+      tags: [Pickupables]
+      description: Update animations for a specific Pickupable object.
+      parameters:
+        - in: path
+          name: guid
+          required: true
+          description: The unique identifier of the Pickupable.
+          schema:
+            type: string
+            $ref: "#/components/schemas/Guid"
+      requestBody:
+        description: Dice roll request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Animation"
+      responses:
+        202:
+          description: Animation updated successfully.
+        400:
+          description: Bad request. Invalid data or type.
+          content:
+            text/plain:
+              schema:
+                type: string
+        403:
+          description: Forbidden
+        404:
+          description: Pickupable not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /pickupables/{guid}/transform:
+    get:
+      summary: Get Pickupable Transform
+      tags: [Pickupables]
+      description: Retrieve the transform of a specific Pickupable object.
+      parameters:
+        - in: path
+          name: guid
+          required: true
+          description: The unique identifier of the Pickupable.
+          schema:
+            type: string
+            $ref: "#/components/schemas/Guid"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropTransform"
+        403:
+          description: Forbidden
+        404:
+          description: Pickupable not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      summary: Update Pickupable Transform
+      tags: [Pickupables]
+      description: Update the transform of a specific Pickupable object.
+      parameters:
+        - in: path
+          name: guid
+          required: true
+          description: The unique identifier of the Pickupable.
+          schema:
+            type: string
+            $ref: "#/components/schemas/Guid"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PropTransform"
+      responses:
+        202:
+          description: Accepted
+        403:
+          description: Forbidden
+        404:
+          description: Pickupable not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /pickupables/{guid}/MoveToGlobalLocation:
+    post:
+      summary: Move the pickupable to the target global location
+      tags: [Pickupables]
+      parameters:
+        - in: path
+          name: guid
+          required: true
+          schema:
+            type: string
+            $ref: "#/components/schemas/Guid"
+      requestBody:
+        description: Position to move to
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Vector3"
+      responses:
+        202:
+          description: Accepted
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+
+  /Campaigns:
+    get:
+      summary: Get Campaigns
+      tags: [Campaigns]
+      description: Get a list of available campaigns.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOfString"
+  /Campaigns/{campaign}:
+    post:
+      summary: Create a Campaign
+      tags: [Campaigns]
+      description: Create a campaign.
+      parameters:
+        - name: campaign
+          in: path
+          required: true
+          description: The name of the campaign to load.
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+        409:
+          description: Conflict
+    delete:
+      summary: Delete a Campaign
+      tags: [Campaigns]
+      description: Delete a campaign.
+      parameters:
+        - name: campaign
+          in: path
+          required: true
+          description: The name of the campaign to delete.
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+        404:
+          description: Not Found
+        409:
+          description: Conflict
+  /Campaigns/{campaign}/Maps:
+    get:
+      summary: Get Maps of a Campaign
+      tags: [Campaigns]
+      description: Get a list of maps for a specific campaign.
+      parameters:
+        - name: campaign
+          in: path
+          required: true
+          description: The name of the campaign to retrieve maps from.
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOfString"
+        404:
+          description: Not Found
+  /Campaigns/{campaign}/Open:
+    post:
+      summary: Load Campaign
+      tags: [Campaigns]
+      description: Load a campaign and open it.
+      parameters:
+        - name: campaign
+          in: path
+          required: true
+          description: The name of the campaign to load.
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+        404:
+          description: Not Found
+        409:
+          description: Conflict
+
+  /CurrentCampaign/CurrentMap:
+    get:
+      summary: Retrieve current map data
+      tags: [CurrentCampaign/CurrentMap]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapDataResponse"
+        "409":
+          description: Map not loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+  /CurrentCampaign/CurrentMap/SendAllPlayers:
+    post:
+      summary: Sends all players to a map
+      tags: [CurrentCampaign/CurrentMap]
+      parameters:
+        - in: path
+          name: mapName
+          required: true
+          description: The name of the map to retrieve
+          schema:
+            type: string
+            $ref: "#/components/schemas/MapTitle"
+      description: Sends all players to a map if it exists
+      responses:
+        202:
+          description: Accepted
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+        409:
+          description: Conflict
+  /CurrentCampaign/CurrentMap/pickupables:
+    get:
+      summary: Retrieve pickupables on the current map
+      tags: [CurrentCampaign/CurrentMap]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOfProp"
+        "409":
+          description: Map not loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      summary: Create Pickupables
+      tags: [CurrentCampaign/CurrentMap]
+      description: Create new pickupable items for the current map.
+      requestBody:
+        description: The collection of pickupable items to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Props"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Prop"
+        403:
+          description: Forbidden
+        "409":
+          description: Map not loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+  /CurrentCampaign/CurrentMap/terrainData:
+    get:
+      summary: Retrieve terrain data on the current map
+      tags: [CurrentCampaign/CurrentMap]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOfTerrainDataPoint"
+        "409":
+          description: Map not loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /CurrentCampaign/CurrentMap/FilePath:
+    get:
+      summary: Retrieve file path of the current map
+      tags: [CurrentCampaign/CurrentMap]
+      responses:
+        "200":
+          description: The file path of the current map
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: 'C:\Users\admin\AppData\LocalLow\PolyDemons\The_RPG_Engine\Campaigns\MyCampaign\My Map.map'
+        403:
+          description: Forbidden
+        "409":
+          description: Map not loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /CurrentCampaign/Maps:
+    get:
+      summary: Get a list of map names
+      tags: [CurrentCampaign/Maps]
+      responses:
+        "200":
+          description: A list of map names
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOfString"
+        403:
+          description: Forbidden
+  /CurrentCampaign/Maps/{mapName}:
+    get:
+      summary: Get map details by name
+      tags: [CurrentCampaign/Maps]
+      parameters:
+        - in: path
+          name: mapName
+          required: true
+          description: The name of the map to retrieve
+          schema:
+            type: string
+            $ref: "#/components/schemas/MapTitle"
+      responses:
+        "200":
+          description: Map details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapDataResponse"
+        403:
+          description: Forbidden
+        "404":
+          description: Map not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /CurrentCampaign/Maps/{mapName}/FilePath:
+    get:
+      summary: Retrieve file path of the given map
+      tags: [CurrentCampaign/Maps]
+      parameters:
+        - in: path
+          name: mapName
+          required: true
+          description: The name of the map to get the file path of
+          schema:
+            type: string
+            $ref: "#/components/schemas/MapTitle"
+      responses:
+        "200":
+          description: The file path of the given map
+          content:
+            text/plain:
+              schema:
+                type: string
+        403:
+          description: Forbidden
+        "409":
+          description: Map not loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+  /CurrentCampaign/Maps/{mapName}/Open:
+    post:
+      summary: Load a map
+      tags: [CurrentCampaign/Maps]
+      parameters:
+        - in: path
+          name: mapName
+          required: true
+          description: The name of the map to retrieve
+          schema:
+            type: string
+            $ref: "#/components/schemas/MapTitle"
+      description: Load a map if it exists
+      responses:
+        202:
+          description: Accepted
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+        409:
+          description: Conflict
+  /CurrentCampaign/Maps/{mapName}/SendAllPlayers:
+    post:
+      summary: Sends all players to a map
+      tags: [CurrentCampaign/Maps]
+      parameters:
+        - in: path
+          name: mapName
+          required: true
+          description: The name of the map to retrieve
+          schema:
+            type: string
+            $ref: "#/components/schemas/MapTitle"
+      description: Sends all players to a map if it exists
+      responses:
+        202:
+          description: Accepted
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+        409:
+          description: Conflict
+  /CurrentCampaign/Maps/{mapName}/pickupables:
+    get:
+      summary: Get pickupables for a specific map.
+      tags: [CurrentCampaign/Maps]
+      parameters:
+        - in: path
+          name: mapName
+          required: true
+          schema:
+            type: string
+            $ref: "#/components/schemas/MapTitle"
+      responses:
+        "200":
+          description: Successful response with pickupables.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PagedResponseOfProp"
+        "404":
+          description: Map not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      summary: Create Pickupables
+      tags: [CurrentCampaign/Maps]
+      description: Create new pickupable items for a specific map.
+      parameters:
+        - name: mapName
+          in: path
+          required: true
+          description: The name of the map where the pickupables should be created.
+          schema:
+            type: string
+            $ref: "#/components/schemas/MapTitle"
+      requestBody:
+        description: The collection of pickupable items to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Props"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Prop"
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+  /CurrentCampaign/Maps/{mapName}/terrainData:
+    get:
+      summary: Get terrain data for a specific map.
+      tags: [CurrentCampaign/Maps]
+      parameters:
+        - in: path
+          name: mapName
+          required: true
+          schema:
+            type: string
+            $ref: "#/components/schemas/MapTitle"
+      responses:
+        "200":
+          description: Successful response with terrain data.
+          content:
+            application/json:
+              schema:
+                type: object # Define the structure of your terrain data here
+        "404":
+          description: Map not found.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    CreateFx:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the click effect.
+          example: ExplosionLightningBlue2
+        position:
+          $ref: "#/components/schemas/Vector3"
+
+    Animation:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Death"
+        type:
+          type: string
+          example: "boolean"
+        boolValue:
+          type: boolean
+          nullable: true
+        intValue:
+          type: integer
+          nullable: true
+        floatValue:
+          type: number
+          format: float
+          nullable: true
+        stringValue:
+          type: string
+          nullable: true
+    Vector2:
+      type: object
+      properties:
+        x:
+          type: number
+          description: X-coordinate
+        y:
+          type: number
+          description: Y-coordinate
+    Vector3:
+      type: object
+      properties:
+        x:
+          type: number
+          description: X-coordinate
+        y:
+          type: number
+          description: Y-coordinate
+        z:
+          type: number
+          description: Z-coordinate
+    Vector4:
+      type: object
+      properties:
+        x:
+          type: number
+          description: X-coordinate
+        y:
+          type: number
+          description: Y-coordinate
+        z:
+          type: number
+          description: Z-coordinate
+        w:
+          type: number
+          description: W-coordinate
+    Quaternion:
+      type: object
+      properties:
+        x:
+          type: number
+          description: X-coordinate
+        y:
+          type: number
+          description: Y-coordinate
+        z:
+          type: number
+          description: Z-coordinate
+        w:
+          type: number
+          description: W-coordinate
+    Color:
+      type: object
+      properties:
+        r:
+          type: number
+          description: red
+          example: 55
+        g:
+          type: number
+          description: green
+          example: 35
+        b:
+          type: number
+          description: blue
+          example: 45
+        a:
+          type: number
+          description: alpha
+          example: 100
+    MapDataResponse:
+      type: object
+      properties:
+        version:
+          type: integer
+          description: The version of the map data
+        title:
+          type: string
+          $ref: "#/components/schemas/MapTitle"
+        lightRotation:
+          type: number
+          description: The rotation of light
+        atmosphere:
+          $ref: "#/components/schemas/Atmosphere"
+        postProcessing:
+          $ref: "#/components/schemas/PostProcessing"
+        settings:
+          $ref: "#/components/schemas/Settings"
+        cutoutSettings:
+          $ref: "#/components/schemas/CutoutSettingsData"
+        ppu:
+          type: integer
+          description: Pixels per unit
+          example: 2
+        controlledProps:
+          $ref: "#/components/schemas/Controllable"
+        controlledStates:
+          $ref: "#/components/schemas/Controllable"
+        turnOrderGuids:
+          type: array
+          items:
+            type: string
+            $ref: "#/components/schemas/Guid"
+        cameraViews:
+          $ref: "#/components/schemas/Controllable"
+        startingCamera:
+          type: string
+          $ref: "#/components/schemas/Guid"
+
+    TerrainData:
+      type: object
+      properties:
+        extendNavOverEdge:
+          type: integer
+          description: The constant value for extending navigation over the edge
+        isSculptable:
+          type: boolean
+          description: Whether the terrain is sculptable
+        size:
+          $ref: "#/components/schemas/Vector3Int"
+        baseHeight:
+          type: number
+          description: The base height of the terrain
+          example: 10
+        baseColor:
+          $ref: "#/components/schemas/Color"
+      required:
+        - size
+
+    Vector3Int:
+      type: object
+      properties:
+        x:
+          type: integer
+          description: The x-coordinate
+        y:
+          type: integer
+          description: The y-coordinate
+        z:
+          type: integer
+          description: The z-coordinate
+
+    TerrainDataPoint:
+      type: object
+      properties:
+        position:
+          $ref: "#/components/schemas/Vector3"
+        value:
+          type: number
+          description: Terrain data value
+        colour:
+          $ref: "#/components/schemas/Vector3"
+    Atmosphere:
+      type: object
+      properties:
+        version:
+          type: integer
+          description: The version of the atmosphere data
+        lightRotation:
+          $ref: "#/components/schemas/Vector2"
+        lightColour:
+          $ref: "#/components/schemas/Color"
+        ambientColor:
+          $ref: "#/components/schemas/Color"
+        enableFog:
+          type: boolean
+          description: Whether fog is enabled
+        fogColour:
+          $ref: "#/components/schemas/Color"
+        fogDensity:
+          type: number
+          description: Fog density
+          example: 1
+        fogHeight:
+          type: number
+          description: Fog height
+          example: 5
+        clouds:
+          type: boolean
+          description: Whether clouds are enabled
+        abyss:
+          type: boolean
+          description: Whether abyss is enabled
+        table:
+          type: boolean
+          description: Whether table is enabled
+        tableColor:
+          $ref: "#/components/schemas/Color"
+        skybox:
+          type: string
+          description: Skybox image name
+          example: "FS000_Day_01_Sunless"
+        rainAmount:
+          type: number
+          description: Rain amount
+        snowAmount:
+          type: number
+          description: Snow amount
+    PostProcessing:
+      type: object
+      properties:
+        tiltShiftBlurAmount:
+          type: number
+          description: Tilt-shift blur amount
+        edgeDetectionEnabled:
+          type: boolean
+          description: Whether edge detection is enabled
+        edgeDetectionColor:
+          $ref: "#/components/schemas/Color"
+        ditheringThreshold:
+          type: number
+          description: Dithering threshold
+        tubeDistortionStrength:
+          type: number
+          description: Tube distortion strength
+        pixelizationResolution:
+          type: integer
+          description: Pixelization resolution
+        colorSplitStrength:
+          type: number
+          description: Color split strength
+        waterRipplesStrength:
+          type: number
+          description: Water ripples strength
+        waterRipplesSpeed:
+          type: number
+          description: Water ripples speed
+        sketchEnabled:
+          type: boolean
+          description: Whether sketch is enabled
+        radialBlurAmount:
+          type: number
+          description: Radial blur amount
+        bloomThreshhold:
+          type: number
+          description: Bloom threshold
+        bloomIntensity:
+          type: number
+          description: Bloom intensity
+        vignetteIntensity:
+          type: number
+          description: Vignette intensity
+        vignetteColor:
+          $ref: "#/components/schemas/Color"
+        postExposure:
+          type: number
+          description: Post-exposure
+        saturation:
+          type: number
+          description: Saturation
+        hue:
+          type: number
+          description: Hue
+        temperature:
+          type: number
+          description: Temperature
+        sharpenEnabled:
+          type: boolean
+          description: Whether sharpen is enabled
+        blackBars:
+          type: number
+          description: Black bars
+        ScanLinesEnabled:
+          type: boolean
+          description: Whether scan lines are enabled
+        scanlinesAmount:
+          type: integer
+          description: Scan lines amount
+        scanlinesSpeed:
+          type: number
+          description: Scan lines speed
+    Settings:
+      type: object
+      properties:
+        showGrid:
+          type: boolean
+          description: Whether to show the grid
+        gridSize:
+          type: number
+          description: Grid size
+        lineWidth:
+          type: number
+          description: Line width
+        gridColor:
+          $ref: "#/components/schemas/Color"
+        gridType:
+          type: integer
+          description: Grid type
+        unitMultiplier:
+          type: number
+          description: Unit multiplier
+        roundRulers:
+          type: boolean
+          description: Whether to round rulers
+    CutoutSettingsData:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Whether cutout is enabled
+        hideFloor:
+          type: boolean
+          description: Whether to hide the floor
+        position:
+          $ref: "#/components/schemas/Vector3"
+        rotation:
+          $ref: "#/components/schemas/Quaternion"
+        scale:
+          $ref: "#/components/schemas/Vector3"
+    Prop:
+      type: object
+      required:
+        - "id"
+        - "guid"
+      properties:
+        version:
+          type: integer
+          description: The version of the prop data
+          example: 12
+        type:
+          type: integer
+          description: The type of the prop
+          enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+          example: 1
+        id:
+          type: string
+          description: The prefab ID of the prop
+          example: "Human Nomad Male 03"
+        guid:
+          type: string
+          $ref: "#/components/schemas/Guid"
+        inGameName:
+          type: string
+          description: The in-game name of the prop
+          example: Nomad
+        parentGuid:
+          type: string
+          $ref: "#/components/schemas/Guid"
+        holderPosId:
+          type: integer
+          description: The holder position ID
+          default: -1
+        isLocked:
+          type: boolean
+          description: Whether the prop is locked
+        isHidden:
+          type: boolean
+          description: Whether the prop is hidden
+          
+    Guid:
+      type: string
+      description: A uniquie identifier
+      example: 70bf4e8b-f720-4ed0-967a-d66b53ac34b8
+          
+    MapTitle:
+      type: string
+      description: The title of the map
+      example: "My Map"
+          
+    Campaign:
+      type: string
+      description: The campaign name
+      example: "MyCampaign"
+
+    PropNavPaths:
+      type: object
+      properties:
+        version:
+          type: integer
+          description: The version of the PropNavPaths
+          default: 1
+        patrolPoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/Vector3"
+          description: A list of patrol points represented as Vector3 objects
+      description: A class for storing navigation paths for a Prop
+
+    PropTransform:
+      type: object
+      properties:
+        position:
+          $ref: "#/components/schemas/Vector3"
+        rotation:
+          $ref: "#/components/schemas/Quaternion"
+        scale:
+          $ref: "#/components/schemas/Vector3"
+
+    GenericPropData:
+      type: object
+      properties:
+        version:
+          type: integer
+          description: The version of the GenericPropData
+          example: 1
+        bools:
+          type: object
+          additionalProperties:
+            type: boolean
+          description: A dictionary mapping string keys to boolean values
+        ints:
+          type: object
+          additionalProperties:
+            type: integer
+          description: A dictionary mapping string keys to integer values
+        floats:
+          type: object
+          additionalProperties:
+            type: number
+          description: A dictionary mapping string keys to float values
+        strings:
+          type: object
+          additionalProperties:
+            type: string
+          description: A dictionary mapping string keys to string values
+        colors:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Color"
+          description: A dictionary mapping string keys to Color objects
+        vector2s:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Vector2"
+          description: A dictionary mapping string keys to Vector2 objects
+        vector3s:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Vector3"
+          description: A dictionary mapping string keys to Vector3 objects
+        vector4s:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Vector4"
+          description: A dictionary mapping string keys to Vector4 objects
+        quaternions:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Quaternion"
+          description: A dictionary mapping string keys to Quaternion objects
+      description: A class for storing generic property data
+
+    Controllable:
+      type: object
+      properties:
+        individual:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              properties:
+                uintValue:
+                  type: integer
+                  description: The unsigned integer value
+                stringValue:
+                  type: string
+                  description: The string value
+          description: A dictionary mapping string keys to lists of (uint, string) pairs
+        all:
+          type: array
+          items:
+            type: string
+          description: A set of string values
+
+    PropUserAnimation:
+      type: object
+      properties:
+        version:
+          type: integer
+          description: The version of the user animation data
+        name:
+          type: string
+          description: The name of the user animation
+        start:
+          $ref: "#/components/schemas/PropTransform"
+        end:
+          $ref: "#/components/schemas/PropTransform"
+        toStart:
+          type: boolean
+          description: Whether the animation goes to the start
+        pingPong:
+          type: boolean
+          description: Whether the animation is ping-pong
+        duration:
+          type: number
+          description: The duration of the animation
+        startDelay:
+          type: number
+          description: The start delay of the animation
+
+    PropImportData:
+      type: object
+      properties:
+        icon:
+          type: string
+          description: The icon data for the prop
+        meshId:
+          type: string
+          description: The mesh ID for the prop
+
+    PropMotion:
+      type: object
+      properties:
+        moveSpeed:
+          type: number
+          description: The move speed of the prop
+        rotateSpeed:
+          type: number
+          description: The rotate speed of the prop
+
+    PropCharacterData:
+      type: object
+      properties:
+        showHelmet:
+          type: boolean
+          description: Whether the helmet is shown
+        parts:
+          type: array
+          items:
+            type: string
+          description: List of character parts
+        colors:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Color"
+
+    PropCanvasData:
+      type: object
+      properties:
+        version:
+          type: integer
+          description: The version of the canvas data
+        showTitle:
+          type: boolean
+          description: Whether the title is shown on the canvas
+        sliders:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/PropCanvasSlider"
+        showStatuses:
+          type: boolean
+          description: Whether statuses are shown on the canvas
+        statuses:
+          type: array
+          items:
+            type: string
+
+    PropCanvasSlider:
+      type: object
+      properties:
+        version:
+          type: integer
+          description: The version of the canvas slider data
+        guid:
+          type: string
+          $ref: "#/components/schemas/Guid"
+        title:
+          type: string
+          description: The title of the canvas slider
+        color:
+          $ref: "#/components/schemas/Color"
+        current:
+          type: number
+          description: The current value of the canvas slider
+        max:
+          type: number
+          description: The maximum value of the canvas slider
+        isVisible:
+          type: boolean
+          description: Whether the canvas slider is visible
+
+    Props:
+      type: array
+      items:
+        $ref: "#/components/schemas/Prop"
+
+    PagedResponseOfProp:
+      type: object
+      properties:
+        count:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Prop"
+
+    PagedResponseOfAnimations:
+      type: object
+      properties:
+        count:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Animation"
+
+    PagedResponseOfTerrainDataPoint:
+      type: object
+      properties:
+        count:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TerrainDataPoint"
+    PagedResponseOfString:
+      type: object
+      properties:
+        count:
+          type: integer
+        data:
+          type: array
+          items:
+            type: string
+    RollRequest:
+      type: object
+      properties:
+        Command:
+          type: string
+          description: The dice roll command (e.g., "2d6+3")
+          example: "2d6+3"
+    RollResult:
+      type: object
+      properties:
+        Result:
+          type: string
+          description: The result of the dice roll
+          example: "11"
+        Message:
+          type: string
+          description: A message describing the roll result
+          example: "2d6+3 as \r\n(4 + 5)+3"
