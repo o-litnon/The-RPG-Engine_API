@@ -655,6 +655,31 @@ paths:
           description: Not Found
         409:
           description: Conflict
+          
+  /CurrentCampaign/Maps/{mapName}/LoadIntoMemory:
+    post:
+      summary: Load a map into memory
+      tags: [CurrentCampaign/Maps]
+      parameters:
+        - in: path
+          name: mapName
+          required: true
+          description: The name of the map to load in to memory
+          schema:
+            type: string
+            $ref: "#/components/schemas/MapTitle"
+      description: Load a map if it exists
+      responses:
+        202:
+          description: Accepted
+        403:
+          description: Forbidden
+        404:
+          description: Not Found
+        409:
+          description: Conflict
+          
+
   /CurrentCampaign/Maps/{mapName}/SendAllPlayers:
     post:
       summary: Sends all players to a map
