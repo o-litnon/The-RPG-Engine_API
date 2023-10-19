@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: Requires The RPG Engine to be running locally.
 servers:
-  - url: http://localhost:8001/TheRpgEngine/
+  - url: http://localhost:8001/TheRpgEngine
 paths:
   /Roll:
     get:
@@ -46,6 +46,26 @@ paths:
             schema:
               type: string
               description: Chat message to send
+              example: "2d6+3"
+      responses:
+        "200":
+          description: Contains optional Roll Result if a Dice command was given
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RollResult"
+                
+  /Chat/Private:
+    post:
+      summary: Post a message to the GM, including roll commands
+      tags: ["Chat"]
+      requestBody:
+        required: true
+        content:
+          application/text:
+            schema:
+              type: string
+              description: Chat message to send to the GM
               example: "2d6+3"
       responses:
         "200":
@@ -460,6 +480,28 @@ paths:
             text/plain:
               schema:
                 type: string
+
+  /CurrentCampaign/CurrentMap/FilePath:
+    get:
+      summary: Retrieve file path of the current map
+      tags: [CurrentCampaign/CurrentMap]
+      responses:
+        "200":
+          description: The file path of the current map
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: 'C:\Users\admin\AppData\LocalLow\PolyDemons\The_RPG_Engine\Campaigns\MyCampaign\My Map.map'
+        403:
+          description: Forbidden
+        "409":
+          description: Map not loaded
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /CurrentCampaign/CurrentMap/SendAllPlayers:
     post:
       summary: Sends all players to a map
@@ -538,27 +580,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PagedResponseOfTerrainDataPoint"
-        "409":
-          description: Map not loaded
-          content:
-            text/plain:
-              schema:
-                type: string
-
-  /CurrentCampaign/CurrentMap/FilePath:
-    get:
-      summary: Retrieve file path of the current map
-      tags: [CurrentCampaign/CurrentMap]
-      responses:
-        "200":
-          description: The file path of the current map
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: 'C:\Users\admin\AppData\LocalLow\PolyDemons\The_RPG_Engine\Campaigns\MyCampaign\My Map.map'
-        403:
-          description: Forbidden
         "409":
           description: Map not loaded
           content:
@@ -784,6 +805,25 @@ paths:
             text/plain:
               schema:
                 type: string
+  /{path}:
+    options:
+      summary: Get the API capabilities
+      tags: ["All"]
+      parameters:
+        - in: path
+          name: path
+          required: true
+          schema:
+            type: string
+            example: "Roll"
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Allow: GET, POST, PUT, DELETE, OPTIONS"
 
 components:
   schemas:
