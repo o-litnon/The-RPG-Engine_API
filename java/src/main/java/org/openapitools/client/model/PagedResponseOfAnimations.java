@@ -52,7 +52,7 @@ import org.openapitools.client.JSON;
 /**
  * PagedResponseOfAnimations
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-10-29T20:42:08.286157Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-10-29T21:06:33.968917Z[Etc/UTC]")
 public class PagedResponseOfAnimations {
   public static final String SERIALIZED_NAME_COUNT = "count";
   @SerializedName(SERIALIZED_NAME_COUNT)

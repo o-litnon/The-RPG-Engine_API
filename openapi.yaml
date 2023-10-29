@@ -3,6 +3,9 @@ info:
   title: The RPG Engine API
   version: 1.0.0
   description: Requires The RPG Engine to be running locally.
+  contact:
+    name: API Clients
+    url: https://github.com/o-litnon/The-RPG-Engine_API
 servers:
   - url: http://localhost:8001/TheRpgEngine
 paths:

@@ -51,7 +51,7 @@ import org.openapitools.client.JSON;
 /**
  * Settings
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-10-29T20:42:08.286157Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2023-10-29T21:06:33.968917Z[Etc/UTC]")
 public class Settings {
   public static final String SERIALIZED_NAME_SHOW_GRID = "showGrid";
   @SerializedName(SERIALIZED_NAME_SHOW_GRID)

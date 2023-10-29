@@ -1,5 +1,8 @@
 openapi: 3.0.0
 info:
+  contact:
+    name: API Clients
+    url: https://github.com/o-litnon/The-RPG-Engine_API
   description: Requires The RPG Engine to be running locally.
   title: The RPG Engine API
   version: 1.0.0
